@@ -1,0 +1,20 @@
+[package]
+name = "example_ili9341"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cortex-m = "0.7.7"
+cortex-m-rt = "0.6.15"
+cortex-m-semihosting = "0.5.0"
+log = "0.4.20"
+#panic-itm = "0.4.2"
+panic-semihosting = "0.6.0"
+stm32-hal = { version = "0.1.0", path = "../stm32-hal" }
+
+[profile.release]
+strip = true  # Automatically strip symbols from the binary.
+opt-level = "z"  # Optimize for size.
+lto = true
