@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use log::info;
 
 use crate::LCD;
@@ -7,8 +9,8 @@ pub struct ILI9341 {
 }
 
 impl ILI9341 {
-    pub const ILI9341_LCD_PIXEL_WIDTH: u16 = 240;
-    pub const ILI9341_LCD_PIXEL_HEIGHT: u16 = 320;
+    pub const ILI9341_LCD_PIXEL_WIDTH: usize = 240;
+    pub const ILI9341_LCD_PIXEL_HEIGHT: usize = 320;
 
     ///
     /// @brief  ILI9341 Timing
@@ -262,6 +264,6 @@ impl ILI9341 {
     }
 
     pub fn off(&mut self) {
-        self.lcd.write_reg(Self::LCD_DISPLAY_ON);
+        self.lcd.write_reg(Self::LCD_DISPLAY_OFF);
     }
 }

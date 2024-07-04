@@ -11,7 +11,7 @@
             "name": "Debug (OpenOCD)",
             "servertype": "openocd",
             "cwd": "${workspaceRoot}",
-            "executable": "./target/thumbv7m-none-eabi/debug/${workspaceFolderBasename}",
+            "executable": "./target/thumbv7m-none-eabi/debug/example_ili9341",
             "preLaunchTask": "Cargo Build (debug)",
             // "runToEntryPoint": "__reset_handler",
             "postLaunchCommands": [

@@ -13,8 +13,8 @@ use cortex_m_rt::entry;
 use cortex_m_semihosting::hio::{ self, HostStream };
 use drivers::ili9341::ILI9341;
 use hal::{
-    embedded_hal::digital::{ InputPin, OutputPin, StatefulOutputPin },
-    gpio::{ self, pin::{ Input, Output, OutputType, Pull, Speed }, PinMask },
+    embedded_hal::digital::{ OutputPin, StatefulOutputPin },
+    gpio::{ self, pin::{ Output, OutputType, Pull, Speed }, PinMask },
     ltdc::{ self, Color, LTDCConfig, PixelClockPolarity, PixelFormat, Polarity },
     rcc::{
         self,
@@ -29,7 +29,15 @@ use hal::{
         SystemClockConfig,
     },
     spi::{
-        self, BaudRate, BusConfiguration, ClockPhase, ClockPolarity, DataFrameFormat, Mode, SPIConfig, SPI
+        self,
+        BaudRate,
+        BusConfiguration,
+        ClockPhase,
+        ClockPolarity,
+        DataFrameFormat,
+        Mode,
+        SPIConfig,
+        SPI,
     },
     Peripheral,
     PeripheralRef,
@@ -43,17 +51,11 @@ fn main() -> ! {
     init_system_clocks();
     init_ltdc_pins();
 
-    let gpioa = gpio::GPIOA::take();
     let gpiog = gpio::GPIOG::take();
 
     let mut green_led = Output::new(gpiog.pin(13), Speed::High);
-    let mut red_led = Output::new(gpiog.pin(14), Speed::High);
 
     green_led.set_high().unwrap();
-    red_led.set_low().unwrap();
-
-    let mut user_button = Input::new(gpioa.pin(0), Pull::None);
-    // user_button.set_irq_handler(InterruptType::RisingEdge, interrupt_handler);
 
     let lcd = LCD::init();
     let _ili9341 = ILI9341::init(lcd);
@@ -68,12 +70,13 @@ fn main() -> ! {
         vertical_sync: ILI9341::ILI9341_VSYNC,
         horizontal_back_porch: ILI9341::ILI9341_HBP,
         vertical_back_porch: ILI9341::ILI9341_VBP,
-        active_width: ILI9341::ILI9341_LCD_PIXEL_WIDTH,
-        active_height: ILI9341::ILI9341_LCD_PIXEL_HEIGHT,
+        active_width: ILI9341::ILI9341_LCD_PIXEL_WIDTH as u16,
+        active_height: ILI9341::ILI9341_LCD_PIXEL_HEIGHT as u16,
         horizontal_front_porch: ILI9341::ILI9341_HFP,
         vertical_front_porch: ILI9341::ILI9341_VFP,
         background_color: Color(0, 0, 0, 0),
     });
+
     ltdc.layer1_configure(
         0,
         0,
@@ -83,21 +86,12 @@ fn main() -> ! {
         Color(0, 0, 0, 0),
         &image::IMAGE as *const _
     );
-    // ltdc.layer1_disable();
-    // ltdc.layer2_disable();
 
     loop {
-        for _ in 0..100_000 {
-            // let mut i = 100_000u32;
-            // while i > 0 {
-            //     i = i.wrapping_sub(1);
-            if user_button.is_high().unwrap() {
-                green_led.toggle().unwrap();
-            }
+        for _ in 0..200_000 {
         }
 
         green_led.toggle().unwrap();
-        red_led.toggle().unwrap();
     }
 }
 
@@ -214,6 +208,7 @@ fn init_ltdc_pins() {
     );
 }
 
+#[allow(unused)]
 pub struct LCD {
     spi: &'static mut SPI,
     ncs: Output,
@@ -279,12 +274,6 @@ impl LCD {
     }
 }
 
-
-
-// fn interrupt_handler() {
-//     GPIOG::pin::<13>().toggle_output();
-// }
-
 static mut SEMIHOSTING_LOGGER: SemihostingLogger = SemihostingLogger { host_stream: None };
 
 pub struct SemihostingLogger {
@@ -293,6 +282,7 @@ pub struct SemihostingLogger {
 
 impl SemihostingLogger {
     pub fn init() -> Result<(), ()> {
+        #[allow(static_mut_refs)]
         unsafe {
             SEMIHOSTING_LOGGER.host_stream = Some(hio::hstdout()?);
             log::set_logger(&SEMIHOSTING_LOGGER).map_err(|_| ())?;
